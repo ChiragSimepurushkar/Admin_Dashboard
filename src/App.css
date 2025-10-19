@@ -1,0 +1,96 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body{
+  font-family: "Montserrat",serif;background: #f1f1f1;
+}
+.MuiBadge-badge {background:#ff5252 !important;}
+
+.ReactCollapse--collapse{
+  transition: height 300ms;
+}
+.btn-blue{
+  padding: 8px 20px;
+}
+.btn-lg{
+  padding: 8px 20px !important;
+  font-size: 16px !important;
+}
+.btn-sm{
+  padding: 6px 20px !important;
+  font-size: 13px !important;
+}
+.btn-blue{
+  background: #3072fa !important;
+  color: #fff !important;
+  padding: 8px 20px;
+}
+/* .btn svg{font-size: 22px;} */
+.btn-blue:hover{
+  background: #1d5edf !important;
+  color: #fff !important;
+}
+::-webkit-scrollbar{width: 10px !important;height: 10px !important;}
+::-webkit-scrollbar-thumb{background:#ccc !important;}
+
+th.MuiTableCell-root{
+  @apply bg-[#f1f1f1] py-1;
+}
+.main {
+  overflow-x: hidden;
+}
+a.active button{
+  background: #dddddd!important;
+}
+.MuiButton-icon svg {
+  font-size: 27px !important;
+}
+.css-rlzt0 .MuiTypography-root {
+  font-size: 14px !important;
+}
+
+.MuiAppBar-colorPrimary {
+  background: #e6e6e6 !important;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+.MuiSelect-select {
+  background: #fff !important;
+}
+.MuiDialog-paper {
+  background: #f9fafb !important;
+}
+
+
+.otpBox input {
+    border: 1px solid rgba(0,0,0,0.3) !important;
+    outline: none !important;
+    border-radius: 4px;
+    /* Adding box-sizing for better layout consistency */
+    box-sizing: border-box; 
+}
+
+/* Styling for when an input field is focused */
+.otpBox input:focus {
+    border: 1px solid rgba(0,0,0,0.7) !important;
+}
+
+/* Styling for the entire OTP verification page container */
+.otpPage .container {
+    height: 90vh; 
+    display: flex;
+    /* Adding alignment for perfect vertical/horizontal centering, 
+       assuming the component inside is the only flex item */
+    align-items: center; 
+    justify-content: center;
+}
+
+.MuiTableBody-root tr:nth-child(even) {
+   @apply bg-gray-50;
+}
