@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import { MdModeEdit } from "react-icons/md";
@@ -18,7 +18,9 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import SearchBox from '../../Components/SearchBox';
 import { MyContext } from '../../App';
-
+import { deleteData, fetchDataFromApi } from '../../utils/api';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 function createData(name, code, population, size) {
     const density = population / size;
     return { name, code, population, size, density };
@@ -53,6 +55,12 @@ export const Category = () => {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [categoryFilterVal, setCategoryFilterVal] = React.useState('');
     const context = useContext(MyContext);
+    useEffect(() => {
+        fetchDataFromApi("/api/category").then((res) => {
+            context?.setCatData(res?.data);
+        });
+    }, [context?.isOpenFullScreenPanel]);
+
     const handleChangeCatFilter = (event) => {
         setCategoryFilterVal(event.target.value);
     };
@@ -64,14 +72,22 @@ export const Category = () => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
+    const deleteCat = (id) => {
+        deleteData(`/api/category/${id}`).then((res) => {
+            fetchDataFromApi("/api/category").then((res) => {
+                context?.setCatData(res?.data)
+            })
+        });
+    };
+
     return (
         <>
-            <div className="flex items-center justify-between px-2 py-0 mt-3">
+            <div className="flex items-center justify-between px-2 py-0 mt-1">
                 <h2 className='text-[19px] font-[600]'>Category List
-                    <span className='font-[400] text-[14px]'>(Material UI Table)</span>
+                    {/* <span className='font-[400] text-[14px]'>(Material UI Table)</span> */}
                 </h2>
-                <div className="col justify-end w-[30%] ml-auto flex items-center gap-3">
-                    <Button className="btn !bg-green-600 !text-white btn-sm">Export</Button>
+                <div className="col justify-end w-[40%] ml-auto flex items-center gap-3">
+                    {/* <Button className="btn !bg-green-600 !text-white btn-sm">Export</Button> */}
                     <Button className="btn-blue btn-sm"
                         onClick={() => context.setIsOpenFullScreenPanel({
                             open: true,
@@ -84,8 +100,8 @@ export const Category = () => {
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead >
                             <TableRow>
-                                <TableCell width={60}>
-                                    <Checkbox {...label} size="small" />
+                                <TableCell width={25}>
+                                    
                                 </TableCell>
                                 {columns.map((column) => (
                                     <TableCell
@@ -99,126 +115,63 @@ export const Category = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow>
-                                <TableCell >
-                                    <Checkbox {...label} size="small" />
-                                </TableCell>
-                                <TableCell width={100}>
-                                    <div className="flex items-center gap-4 w-[80px]">
-                                        <div className=" group img w-fullrounded-md overflow-hidden">
-                                            <Link to="/product/35545">
-                                                <img
-                                                    src="https://serviceapi.spicezgold.com/download/1741661045887_bag.png"
-                                                    className="w-full group-hover:scale-105 transition-all"
-                                                />
-                                            </Link>
-                                        </div>
+                            {
+                                context?.catData?.length !== 0 && context?.catData?.map((item, index) => {
+                                    return (
+                                        <>
+                                            <TableRow key={index}>
+                                                <TableCell >
+                                                    
+                                                </TableCell>
+                                                <TableCell width={100}>
+                                                    <div className="flex items-center gap-4 w-[70px]">
+                                                        <div className=" group img w-fullrounded-md overflow-hidden">
+                                                            <Link to="/product/35545">
+                                                                <LazyLoadImage
+                                                                    alt={"image"}
+                                                                    effect="blur"
+                                                                    className="w-full group-hover:scale-105 transition-all"
+                                                                    src={item.images[0]}
+                                                                />
+                                                            </Link>
+                                                        </div>
 
-                                    </div>
-                                </TableCell>
-                                 <TableCell width={100}>
-                                    Fashion
-                                </TableCell>
-                                <TableCell width={100}>
-                                    <div className="flex items-center gap-1">
-                                        <TooltipMUI title="Edit Product" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <MdModeEdit className="text-[rgba(0,0,0,1)] text-[20px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                        <TooltipMUI title="View Product Details" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <FaEye className="text-[rgba(0,0,0,1)] text-[20px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                        <TooltipMUI title="Remove Product" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <FaTrashAlt className="text-[rgba(0,0,0,1)] text-[17px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell >
-                                    <Checkbox {...label} size="small" />
-                                </TableCell>
-                                <TableCell width={100}>
-                                    <div className="flex items-center gap-4 w-[80px]">
-                                        <div className=" group img w-fullrounded-md overflow-hidden">
-                                            <Link to="/product/35545">
-                                                <img
-                                                    src="https://serviceapi.spicezgold.com/download/1741661045887_bag.png"
-                                                    className="w-full group-hover:scale-105 transition-all"
-                                                />
-                                            </Link>
-                                        </div>
-
-                                    </div>
-                                </TableCell>
-                                <TableCell width={100}>
-                                    Fashion
-                                </TableCell>
-                                <TableCell width={100}>
-                                    <div className="flex items-center gap-1">
-                                        <TooltipMUI title="Edit Product" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <MdModeEdit className="text-[rgba(0,0,0,1)] text-[20px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                        <TooltipMUI title="View Product Details" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <FaEye className="text-[rgba(0,0,0,1)] text-[20px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                        <TooltipMUI title="Remove Product" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <FaTrashAlt className="text-[rgba(0,0,0,1)] text-[17px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell >
-                                    <Checkbox {...label} size="small" />
-                                </TableCell>
-                                <TableCell width={100}>
-                                    <div className="flex items-center gap-4 w-[80px]">
-                                        <div className=" group img w-fullrounded-md overflow-hidden">
-                                            <Link to="/product/35545">
-                                                <img
-                                                    src="https://serviceapi.spicezgold.com/download/1741661045887_bag.png"
-                                                    className="w-full group-hover:scale-105 transition-all"
-                                                />
-                                            </Link>
-                                        </div>
-
-                                    </div>
-                                </TableCell>
-                                 <TableCell width={100}>
-                                    Fashion
-                                </TableCell>
-                                <TableCell width={100}>
-                                    <div className="flex items-center gap-1">
-                                        <TooltipMUI title="Edit Product" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <MdModeEdit className="text-[rgba(0,0,0,1)] text-[20px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                        <TooltipMUI title="View Product Details" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <FaEye className="text-[rgba(0,0,0,1)] text-[20px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                        <TooltipMUI title="Remove Product" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <FaTrashAlt className="text-[rgba(0,0,0,1)] text-[17px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell width={100}>
+                                                    {item?.name}
+                                                </TableCell>
+                                                <TableCell width={100}>
+                                                    <div className="flex items-center gap-1">
+                                                        <TooltipMUI title="Edit Product" placement="top">
+                                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] 
+                                                            !h-[35px] bg-[#f1f1f1] !border 
+                                                            !border-[rgba(0,0,0,0.4)] !min-w-[35px]"
+                                                                onClick={() => context.setIsOpenFullScreenPanel({
+                                                                    open: true,
+                                                                    model: 'Edit Category',
+                                                                    id: item?._id
+                                                                })}>
+                                                                <MdModeEdit className="text-[rgba(0,0,0,1)] text-[20px]" />
+                                                            </Button>
+                                                        </TooltipMUI>
+                                                        {/* <TooltipMUI title="View Product Details" placement="top">
+                                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
+                                                                <FaEye className="text-[rgba(0,0,0,1)] text-[20px]" />
+                                                            </Button>
+                                                        </TooltipMUI> */}
+                                                        <TooltipMUI title="Remove Product" placement="top">
+                                                            <Button onClick={() => deleteCat(item?._id)} className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
+                                                                <FaTrashAlt className="text-[rgba(0,0,0,1)] text-[17px]" />
+                                                            </Button>
+                                                        </TooltipMUI>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        </>
+                                    )
+                                })
+                            }
                         </TableBody>
                     </Table>
                 </TableContainer>

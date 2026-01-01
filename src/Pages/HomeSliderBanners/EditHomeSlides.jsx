@@ -6,19 +6,32 @@ import { IoMdClose } from 'react-icons/io';
 import Button from '@mui/material/Button';
 import { FaCloudUploadAlt } from 'react-icons/fa';
 import { MyContext } from '../../App';
-import { deleteImages, postData } from '../../utils/api';
+import { deleteImages, fetchDataFromApi, postData } from '../../utils/api';
 import CircularProgress from '@mui/material/CircularProgress';
-const AddHomeSlide = () => {
+import { useEffect } from 'react';
+
+const EditHomeSlide = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [previews, setPreviews] = useState([]);
     const [formFields, setFormFields] = useState({
         images: [],
     });
+
     const context = useContext(MyContext);
     const setPreviewsFun = (previewsArr) => {
         setPreviews(prev => [...prev, ...previewsArr]);
         formFields.images = [...formFields.images, ...previewsArr];
     }
+    useEffect(() => {
+        fetchDataFromApi("/api/homeSlides").then((res) => {
+            if (res?.error === false && res?.slide) {
+                const slidesArr = res.slide.map(item => item);
+                setPreviews(slidesArr);
+                setFormFields({ images: slidesArr });
+            }
+        });
+    }, []);
+
     const removeImg = (image, index) => {
         var imageArr = [];
         imageArr = previews;
@@ -44,9 +57,10 @@ const AddHomeSlide = () => {
             setIsLoading(false);
             return false;
         }
-        postData("/api/homeSlides/create", formFields)
+        postData(`/api/homeSlides/${context?.isOpenFullScreenPanel?.id}`, formFields)
             .then((res) => {
                 // console.log(res);
+                context.openAlertBox("success", res?.message);
                 setTimeout(() => {
                     setIsLoading(false);
                     context.setIsOpenFullScreenPanel({
@@ -108,4 +122,4 @@ const AddHomeSlide = () => {
     )
 }
 
-export default AddHomeSlide;
+export default EditHomeSlide;

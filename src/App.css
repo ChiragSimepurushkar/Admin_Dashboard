@@ -2,6 +2,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
 body{
   font-family: "Montserrat",serif;background: #f1f1f1;
 }
@@ -93,4 +95,153 @@ input[type=number]::-webkit-outer-spin-button {
 
 .MuiTableBody-root tr:nth-child(even) {
    @apply bg-gray-50;
+}
+
+button .MuiCircularProgress-root {width:30px !important; height:30px !important;}
+
+input[type="text"]:disabled, input[type="email"]:disabled {
+    pointer-events: none;
+    background: #f1f1f1 !important;
+}
+
+.react-international-phone-input {
+    width: 100% !important;
+}
+
+.react-international-phone-country-selector-button {
+    width: 55px !important;
+}
+.react-international-phone-input-container {
+   border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.2) !important;
+}
+.Mui-focused fieldset legend {
+  display: none !important;
+}
+
+.zoomProductSliderThumb .swiper-slide{
+  height: 150px !important;
+}
+.zoomProductSliderThumb .swiper-wrapper{
+padding-top: 38px !important;
+}
+.zoomProductSliderThumb {
+  height: 70vh;overflow: hidden;
+} /* Zoom Product Slider Thumbnail Navigation Buttons */
+.zoomProductSliderThumb .swiper-button-next,
+.zoomProductSliderThumb .swiper-button-prev {
+  width: 100% !important;
+  height: 30px !important;
+  background: #ccc !important;
+  border-radius: 4px !important;
+  left: 0 !important;
+  right: 0 !important;
+  margin: 0 auto !important;
+}
+
+.zoomProductSliderThumb .swiper-button-next::after,
+.zoomProductSliderThumb .swiper-button-prev::after {
+  font-size: 14px !important;
+  color: #fff !important;
+  font-weight: bold !important;
+}
+
+.zoomProductSliderThumb .swiper-button-prev {
+  top: 0 !important;
+  bottom: auto !important;
+}
+
+.zoomProductSliderThumb .swiper-button-next {
+  top: auto !important;
+  bottom: 0 !important;
+}
+
+/* Hover effects */
+.zoomProductSliderThumb .swiper-button-next:hover,
+.zoomProductSliderThumb .swiper-button-prev:hover {
+  background: #ccc !important;
+  transition: all 0.3s ease !important;
+}
+.zoomProductSliderThumbs .swiper-slide {
+  height: 80px !important;
+  overflow: hidden;
+  border-radius: 5px;
+}
+/* Disabled state */
+.zoomProductSliderThumb .swiper-button-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+.swiper-slide .img {
+  height: 400px !important;
+  overflow: hidden !important;
+}
+
+
+
+/* Update your CSS to use !important for all declarations */
+.swiper-button-prev,
+.swiper-button-next {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #fff !important;
+  border-radius: 100% !important;
+  width: 32px !important;
+  /* button circle size */
+  height: 32px !important;
+  box-shadow: 0 1px 3px #0000001f, 0 1px 2px #0000003d !important;
+}
+
+/* If arrows are still text icons (older Swiper) */
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  font-size: 16px !important;
+  /* smaller arrow glyph */
+  color: #000 !important;
+  line-height: 1;
+}
+
+/* If arrows are SVG (newer Swiper) */
+.swiper-button-prev svg,
+.swiper-button-next svg {
+  width: 16px !important;
+  /* arrow size inside button */
+  height: 16px !important;
+}
+
+.swiper-button-prev svg path,
+.swiper-button-next svg path {
+  fill: #000 !important;
+  /* arrow color */
+}
+
+.smlBtn .swiper-button-prev,
+.smlBtn .swiper-button-next {
+  width: 25px !important;
+  height: 25px !important;
+  min-width: 25px !important;
+  top: 55% !important;
+}
+
+.smlBtn .swiper-button-prev:after,
+.smtBtn .swiper-button-next:after {
+  font-size: 18px !important;
+  /* smaller arrow glyph */
+  color: #000 !important;
+}
+
+.smlBtn .swiper-button-prev:hover {
+  background: #ff5252 !important;
+}
+
+.smlBtn .swiper-button-next:hover {
+  background: #ff5252 !important;
+}
+
+.contentRight{padding-top: 80px !important;}
+
+.rsw-editor {
+    min-height: 200px !important;
+    background: #FFF;
 }

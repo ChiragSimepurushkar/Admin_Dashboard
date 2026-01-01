@@ -10,8 +10,8 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 import { IoMdClose } from 'react-icons/io';
 import Button from '@mui/material/Button';
 import { FaCloudUploadAlt } from 'react-icons/fa';
-import { deleteImages, fetchDataFromApi, postData } from '../../utils/api';
-import { useNavigate } from 'react-router-dom';
+import { deleteImages, editData, fetchDataFromApi } from '../../utils/api';
+import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import { MyContext } from '../../App';
 import Switch from '@mui/material/Switch';
@@ -29,7 +29,7 @@ const MenuProps = {
     },
 };
 
-const AddProduct = () => {
+const EditProduct = () => {
     const context = useContext(MyContext);
     const history = useNavigate();
     if (context.isLoadingCategories) {
@@ -63,22 +63,21 @@ const AddProduct = () => {
         size: [],
         productWeight: [],
         bannerTitlename: '',
-        bannerimages: [],
-        isDisplayOnHomeBanner: false,
+        bannerimages: []
     });
     const [productCat, setProductCat] = useState('');
     const [productSubCat, setProductSubCat] = useState('');
     const [productFeatured, setProductFeatured] = useState('');
     const [productThirdLavelCat, setProductThirdLavelCat] = useState('');
     const [productRams, setProductRams] = useState([]);
-    const [productRamsData, setProductRamsData] = useState([]);
-    const [productWeightData, setProductWeightData] = useState([]);
-    const [productSizeData, setProductSizeData] = useState([]);
     const [productWeight, setProductWeight] = useState([]);
     const [productSize, setProductSize] = useState([]);
     const [previews, setPreviews] = useState([]);
-    const [bannerPreviews, setBannerPreviews] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [productRamsData, setProductRamsData] = useState([]);
+    const [productWeightData, setProductWeightData] = useState([]);
+    const [productSizeData, setProductSizeData] = useState([]);
+    const [bannerPreviews, setBannerPreviews] = useState([]);
     const [checkedSwitch, setCheckedSwitch] = useState(false);
     useEffect(() => {
         fetchDataFromApi("/api/product/productRAMS").then((res) => {
@@ -96,7 +95,46 @@ const AddProduct = () => {
                 setProductSizeData(res?.data);
             }
         })
-    }, [])
+        fetchDataFromApi(`/api/product/${context?.isOpenFullScreenPanel?.id}`).then((res) => {
+            setFormFields({
+                name: res?.product?.name,
+                description: res?.product?.description,
+                images: res?.product?.images,
+                brand: res?.product?.brand,
+                price: res?.product?.price,
+                oldPrice: res?.product?.oldPrice,
+                category: res?.product?.category,
+                catName: res?.product?.catName,
+                catID: res?.product?.catID,
+                subCatId: res?.product?.subCatId,
+                subCat: res?.product?.subCat,
+                thirdsubCat: res?.product?.thirdsubCat,
+                thirdsubCatId: res?.product?.thirdsubCatId,
+                countInStock: res?.product?.countInStock,
+                rating: res?.product?.rating,
+                isFeatured: res?.product?.isFeatured,
+                discount: res?.product?.discount,
+                productRam: res?.product?.productRam,
+                size: res?.product?.size,
+                productWeight: res?.product?.productWeight,
+                bannerimages: res?.product?.bannerimages,
+                bannerTitlename: res?.product?.bannerTitlename,
+                isDisplayOnHomeBanner: res?.product?.isDisplayOnHomeBanner,
+
+            })
+            setProductCat(res?.product?.catId);
+            setProductSubCat(res?.product?.subCatId);
+            setProductThirdLavelCat(res?.product?.thirdsubCatId);
+            setProductFeatured(res?.product?.isFeatured)
+            setProductRams(res?.product?.productRam)
+            setProductSize(res?.product?.size)
+            setProductWeight(res?.product?.productWeight)
+            setPreviews(res?.product?.images)
+            setBannerPreviews(res?.product?.bannerimages)
+            setCheckedSwitch(res?.product?.isDisplayOnHomeBanner)
+        });
+    }, []);
+
     const onChangeInput = (e) => {
         const { name, value } = e.target;
         setFormFields(() => {
@@ -238,7 +276,7 @@ const AddProduct = () => {
         console.log(formFields)
         setIsLoading(true);
 
-        postData("/api/product/create", formFields).then((res) => {
+        editData(`/api/product/updateProduct/${context?.isOpenFullScreenPanel?.id}`, formFields).then((res) => {
             console.log(res)
             if (res?.error === false) {
                 context.openAlertBox("success", res?.message);
@@ -256,14 +294,24 @@ const AddProduct = () => {
         })
     }
 
-    const handleChangeSwitch = (event) => {
-        setCheckedSwitch(event.target.checked)
-        formFields.isDisplayOnHomeBanner=event.target.checked
-    }
-
     // const setPreviewsFun = (previewsArr) => {
     //     setPreviews(prev => [...prev, ...previewsArr]);
     //     formFields.images = [...formFields.images, ...previewsArr];
+    // }
+    // const removeImg = (image, index) => {
+    //     var imageArr = [];
+    //     imageArr = previews;
+    //     deleteImages(`/api/category/deleteImage?img=${image}`).then((res) => {
+    //         imageArr.splice(index, 1);
+    //         setPreviews([]);
+    //         setTimeout(() => {
+    //             setPreviews(imageArr);
+    //             formFields.images = imageArr
+    //         }, 100)
+    //     }).catch((error) => {
+    //         console.error("Error:", error);
+
+    //     });
     // }
     const setPreviewsFun = (previewsArr) => {
         setPreviews(prev => {
@@ -291,21 +339,12 @@ const AddProduct = () => {
         });
     };
 
-    // const removeImg = (image, index) => {
-    //     var imageArr = [];
-    //     imageArr = previews;
-    //     deleteImages(`/api/product/deleteImage?img=${image}`).then((res) => {
-    //         imageArr.splice(index, 1);
-    //         setPreviews([]);
-    //         setTimeout(() => {
-    //             setPreviews(imageArr);
-    //             formFields.images = imageArr
-    //         }, 100)
-    //     }).catch((error) => {
-    //         console.error("Error:", error);
+    const handleChangeSwitch = (event) => {
+        setCheckedSwitch(event.target.checked)
+        formFields.isDisplayOnHomeBanner = event.target.checked
+    }
 
-    //     });
-    // }
+
     const removeProductImg = (image, index) => {
         const updated = previews.filter((_, i) => i !== index);
 
@@ -329,7 +368,6 @@ const AddProduct = () => {
         deleteImages(`/api/product/deleteImage?img=${image}`);
 
     };
-
     return (
         <section className="p-5">
             <form className="form md:p-8 md:py-3 py-1" onSubmit={handleSubmit}>
@@ -376,6 +414,7 @@ const AddProduct = () => {
                                         context?.catData?.map((cat, index) => {
                                             return (
                                                 <MenuItem value={cat?._id}
+                                                    key={index}
                                                     onClick={() => selectCatByName(cat?.name)}>{cat?.name}</MenuItem>
                                             )
                                         })
@@ -402,6 +441,7 @@ const AddProduct = () => {
                                                 cat?.children?.length !== 0 && cat?.children?.map((subCat, index_) => {
                                                     return (
                                                         <MenuItem value={subCat?._id}
+                                                            key={index}
                                                             onClick={() => selectSubCatByName(subCat?.name)}>
                                                             {subCat?.name}
                                                         </MenuItem>
@@ -539,7 +579,6 @@ const AddProduct = () => {
                                     }
                                 </Select>
                             }
-
                         </div>
                         <div className="col">
                             <h3 className="text-[14px] font-[500] mb-1 text-black">Product Weight</h3>
@@ -597,7 +636,7 @@ const AddProduct = () => {
 
                         <div className="col">
                             <h3 className="text-[14px] font-[500] mb-1 text-black">Product Rating</h3>
-                            <Rating name="half-rating" defaultValue={1} precision={0.5}
+                            <Rating name="rating" value={formFields.rating}
                                 onChange={onChangeRating} />
                         </div>
                     </div>
@@ -630,7 +669,6 @@ const AddProduct = () => {
                         </div>
                     </div>
 
-
                     <div className="col w-full p-5 px-0">
 
                         <div className="shadow-mg bg-white p-4 w-full">
@@ -644,8 +682,8 @@ const AddProduct = () => {
                                         return (
                                             <div className="uploadBoxWrapper relative" key={index}>
                                                 <span className="absolute w-[20px] h-[20px] 
-                                        rounded-full overflow-hidden bg-red-700 -top-[5px] -right-[5px] flex 
-                                        items-center justify-center z-50 cursor-pointer"
+                                                            rounded-full overflow-hidden bg-red-700 -top-[5px] -right-[5px] flex 
+                                                            items-center justify-center z-50 cursor-pointer"
                                                     onClick={() => {
                                                         removeBannerImg(image, index)
                                                     }}>
@@ -670,8 +708,6 @@ const AddProduct = () => {
                         </div>
                     </div>
 
-
-
                 </div>
                 <hr className='text-[rgba(0,0,0,0.1)]' />
                 <br />
@@ -690,4 +726,4 @@ const AddProduct = () => {
     )
 }
 
-export default AddProduct;
+export default EditProduct;

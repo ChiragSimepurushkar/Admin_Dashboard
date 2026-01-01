@@ -1,28 +1,50 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import UploadBox from '../../Components/UploadBox';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { IoMdClose } from 'react-icons/io';
 import Button from '@mui/material/Button';
-import { FaCloudUploadAlt } from 'react-icons/fa';
-import { MyContext } from '../../App';
-import { deleteImages, postData } from '../../utils/api';
 import CircularProgress from '@mui/material/CircularProgress';
-const AddHomeSlide = () => {
+import { FaCloudUploadAlt } from 'react-icons/fa';
+import { deleteImages, editData, fetchDataFromApi, postData } from '../../utils/api';
+import { MyContext } from '../../App';
+const EditCategory = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [previews, setPreviews] = useState([]);
+
     const [formFields, setFormFields] = useState({
+        name: "",
         images: [],
     });
     const context = useContext(MyContext);
+    useEffect(() => {
+        const id = context?.isOpenFullScreenPanel?.id;
+
+        fetchDataFromApi(`/api/category/${id}`).then((res) => {
+            formFields.name=res?.category?.name
+            setPreviews(res?.category?.images)
+        });
+    }, [context?.isOpenFullScreenPanel]);
+    
+    const [previews, setPreviews] = useState([]);
+    const onChangeInput = (e) => {
+        const { name, value } = e.target;
+        setFormFields(() => {
+            return {
+                ...formFields,
+                [name]: value,
+            };
+        });
+        formFields.images = previews
+
+    }
     const setPreviewsFun = (previewsArr) => {
-        setPreviews(prev => [...prev, ...previewsArr]);
-        formFields.images = [...formFields.images, ...previewsArr];
+        setPreviews(previewsArr)
+        formFields.images = previewsArr
     }
     const removeImg = (image, index) => {
         var imageArr = [];
         imageArr = previews;
-        deleteImages(`/api/homeSlides/deleteImage?img=${image}`).then((res) => {
+        deleteImages(`/api/category/deleteImage?img=${image}`).then((res) => {
             imageArr.splice(index, 1);
             setPreviews([]);
             setTimeout(() => {
@@ -34,39 +56,59 @@ const AddHomeSlide = () => {
 
         });
     }
-
     const handleSubmit = (e) => {
         e.preventDefault();
 
         setIsLoading(true);
-        if (previews?.length === 0) {
-            context.openAlertBox("error", "Please select slides image");
+
+        if (formFields.name === "") {
+            context.openAlertBox("error", "Please enter category name");
             setIsLoading(false);
             return false;
         }
-        postData("/api/homeSlides/create", formFields)
+
+        if (previews?.length === 0) {
+            context.openAlertBox("error", "Please select category image");
+            setIsLoading(false);
+            return false;
+        }
+        editData(`/api/category/${context?.isOpenFullScreenPanel?.id}`, formFields)
             .then((res) => {
-                // console.log(res);
                 setTimeout(() => {
                     setIsLoading(false);
                     context.setIsOpenFullScreenPanel({
                         open: false,
 
                     })
-                    window.location.href = "/homeSlider/list";
                 }, 1500)
             });
     };
-
     return (
         <section className="p-5 bg-gray-50">
             <form className="form py-3 p-3 md:p-8" onSubmit={handleSubmit}>
                 <div className="scroll max-h-[72vh] overflow-y-scroll pr-4 pt-4">
+                    <div className="grid grid-cols-1 mb-3">
+                        <div className="col w-full md:w-[25%]">
+                            <h3 className="text-[16px] font-[500] mb-1 text-black">Category Name</h3>
+                            <input
+                                type="text"
+                                className="w-full h-[40px]
+                                 border border-[rgba(0,0,0,0.2)] 
+                                 focus:outline-none focus:border-[rgba(0,0,0,0.4)]
+                                  rounded-sm p-3 text-sm"
+                                name="name"
+                                value={formFields.name}
+                                onChange={onChangeInput}
+                            />
+                        </div>
+                    </div><br />
+                    <h3 className="text-[16px] font-[500] mb-1 text-black">Category Image</h3>
+                    <br />
                     <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
                         {
                             previews?.length !== 0 && previews?.map((image, index) => {
                                 return (
-                                    <div className="uploadBoxWrapper relative" key={index}>
+                                    <div className="uploadBoxWrapper mr-3 relative" key={index}>
                                         <span className="absolute w-[20px] h-[20px] 
                                         rounded-full overflow-hidden bg-red-700 -top-[5px] -right-[5px] flex 
                                         items-center justify-center z-50 cursor-pointer"
@@ -82,8 +124,8 @@ const AddHomeSlide = () => {
                                 )
                             })
                         }
-                        <UploadBox multiple={false} name="images"
-                            url="/api/homeSlides/uploadImages"
+                        <UploadBox multiple={true} name="images"
+                            url="/api/category/uploadImages"
                             setPreviewsFun={setPreviewsFun} />
                     </div>
                 </div>
@@ -108,4 +150,4 @@ const AddHomeSlide = () => {
     )
 }
 
-export default AddHomeSlide;
+export default EditCategory;

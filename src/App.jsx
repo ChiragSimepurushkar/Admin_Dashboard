@@ -1,5 +1,5 @@
 import "./App.css";
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Dashboard from "./Pages/Dashboard";
 import Header from "./Components/Header";
@@ -8,46 +8,86 @@ import { createContext, useState } from "react";
 import Login from "./Pages/Login";
 import SignUp from "./Pages/SignUp";
 import Products from "./Pages/Products";
-
-import Dialog from '@mui/material/Dialog';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemButton from '@mui/material/ListItemButton';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import toast, { Toaster } from 'react-hot-toast';
 import Slide from '@mui/material/Slide';
-import { IoMdClose } from "react-icons/io";
-import Button from "@mui/material/Button";
-import AddProduct from "./Pages/Products/addProduct";
 import HomeSliderBanners from "./Pages/HomeSliderBanners";
-import AddHomeSlide from "./Pages/HomeSliderBanners/addHomeSlide";
 import Category from "./Pages/Category";
-import AddCategory from "./Pages/Category/addCategory";
 import SubCategory from "./Pages/Category/subCategory";
-import AddSubCategory from "./Pages/Category/addSubCategory";
 import Users from "./Pages/Users";
 import Orders from "./Pages/Orders";
 import ForgotPassword from "./Pages/ForgotPassword";
 import VerifyAccount from "./Pages/VerifyAccount";
 import ChangePassword from "./Pages/ChangePassword";
-
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
+import { fetchDataFromApi } from "./utils/api";
+import { useEffect } from "react";
+import Profile from "./Pages/Profile";
+import ProductDetails from "./Pages/Products/productDetails";
+import AddRAMS from "./Pages/Products/AddRAMS";
+import AddWEIGHT from "./Pages/Products/AddWEIGHT";
+import AddSIZES from "./Pages/Products/AddSIZES";
+import BannerV1List from "./Pages/Banners/bannerV1List";
+import { BlogList } from "./Pages/Blog";
+import "./responsive.css";
 const MyContext = createContext();
 
 function App() {
+  const openAlertBox = (status, msg) => {
+    if (status === 'Success' || status === 'success') {
+      toast.success(msg);
+    } else {
+      toast.error(msg);
+    }
+  }
+  const [userData, setuserData] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [address, setAddress] = useState([])
+  const [catData, setCatData] = useState([])
+  const [sidebarWidth, setSidebarWidth] = useState(18);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isOpenFullScreenPanel, setIsOpenFullScreenPanel] = useState({
     open: false,
-    model: ''
+    model: '',
+    id: ""
   });
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
+  useEffect(() => {
+  console.log('Window width:', windowWidth);
+  
+  if (windowWidth < 992) {
+    setIsSidebarOpen(false);
+    setSidebarWidth(280); // Fixed pixel width for mobile
+  } else {
+    // Desktop: can be open or closed
+    setSidebarWidth(18); // Percentage width for desktop
+  }
+}, [windowWidth]);
+
+useEffect(() => {
+  getCat();
+  
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+  };
+  setWindowWidth(window.innerWidth);
+  window.addEventListener("resize", handleResize);
+  return () => {
+    window.removeEventListener("resize", handleResize);
+  };
+}, []);
+
+  const getCat = () => {
+    setIsLoadingCategories(true);
+    fetchDataFromApi("/api/category").then((res) => {
+      setCatData(res?.data || []);
+      setIsLoadingCategories(false);
+    }).catch(err => {
+      console.error("Error fetching categories:", err);
+      setCatData([]);
+      setIsLoadingCategories(false);
+    });
+  }
 
   const router = createBrowserRouter([
     {
@@ -57,11 +97,15 @@ function App() {
         <>
           <section className="main">
             <Header />
+            <div
+              className={`sidebar-overlay ${isSidebarOpen && windowWidth < 992 ? '' : 'hidden'}`}
+              onClick={() => setIsSidebarOpen(false)}
+            />
             <div className="contentMain flex">
-              <div className={`sidebarWrapper transition-all ${isSidebarOpen === true ? 'w-[18%]' : 'w-[0%]'}`}>
+              <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <Sidebar />
               </div>
-              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : 'w-[82%]'}`}>
+              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen && windowWidth >= 992 ? 'sidebar-open' : 'sidebar-closed'}`}>
                 <Dashboard />
               </div>
             </div>
@@ -95,11 +139,49 @@ function App() {
           <section className="main">
             <Header />
             <div className="contentMain flex">
-              <div className={`sidebarWrapper transition-all ${isSidebarOpen === true ? 'w-[18%]' : 'w-[0%]'}`}>
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <Sidebar />
               </div>
-              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : 'w-[82%]'}`}>
+              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
                 <Products />
+              </div>
+            </div>
+          </section>
+        </>
+      ),
+    },
+    {
+      path: "/product/:id",
+      exact: true,
+      element: (
+        <>
+          <section className="main">
+            <Header />
+            <div className="contentMain flex">
+              <div className={`sidebarWrapper transition-all ${isSidebarOpen === true ? `!w-[${(sidebarWidth)}%]` : 'w-[0%] opacity-0'}`}>
+                <Sidebar />
+              </div>
+              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <ProductDetails />
+              </div>
+            </div>
+          </section>
+        </>
+      ),
+    },
+    {
+      path: "/bannerV1/list",
+      exact: true,
+      element: (
+        <>
+          <section className="main">
+            <Header />
+            <div className="contentMain flex">
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
+                <Sidebar />
+              </div>
+              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <BannerV1List />
               </div>
             </div>
           </section>
@@ -114,10 +196,10 @@ function App() {
           <section className="main">
             <Header />
             <div className="contentMain flex">
-              <div className={`sidebarWrapper transition-all ${isSidebarOpen === true ? 'w-[18%]' : 'w-[0%]'}`}>
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <Sidebar />
               </div>
-              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : 'w-[82%]'}`}>
+              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
                 <HomeSliderBanners />
               </div>
             </div>
@@ -133,11 +215,11 @@ function App() {
           <section className="main">
             <Header />
             <div className="contentMain flex">
-              <div className={`sidebarWrapper transition-all ${isSidebarOpen === true ? 'w-[18%]' : 'w-[0%]'}`}>
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <Sidebar />
               </div>
-              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : 'w-[82%]'}`}>
-                <Category/>
+              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <Category />
               </div>
             </div>
           </section>
@@ -152,11 +234,11 @@ function App() {
           <section className="main">
             <Header />
             <div className="contentMain flex">
-              <div className={`sidebarWrapper transition-all ${isSidebarOpen === true ? 'w-[18%]' : 'w-[0%]'}`}>
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <Sidebar />
               </div>
-              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : 'w-[82%]'}`}>
-                <SubCategory/>
+              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <SubCategory />
               </div>
             </div>
           </section>
@@ -171,11 +253,13 @@ function App() {
           <section className="main">
             <Header />
             <div className="contentMain flex">
-              <div className={`sidebarWrapper transition-all ${isSidebarOpen === true ? 'w-[18%]' : 'w-[0%]'}`}>
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <Sidebar />
               </div>
-              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : 'w-[82%]'}`}>
-                <Users/>
+              <div 
+              // onClick={() => setIsSidebarOpen(false)} 
+              className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <Users />
               </div>
             </div>
           </section>
@@ -190,11 +274,13 @@ function App() {
           <section className="main">
             <Header />
             <div className="contentMain flex">
-              <div className={`sidebarWrapper transition-all ${isSidebarOpen === true ? 'w-[18%]' : 'w-[0%]'}`}>
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <Sidebar />
               </div>
-              <div className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : 'w-[82%]'}`}>
-                <Orders/>
+              <div 
+              // onClick={() => setIsSidebarOpen(false)}  
+              className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <Orders />
               </div>
             </div>
           </section>
@@ -219,7 +305,7 @@ function App() {
         </>
       ),
     },
-     {
+    {
       path: "/change-password",
       exact: true,
       element: (
@@ -228,13 +314,203 @@ function App() {
         </>
       ),
     },
+    {
+      path: "/profile",
+      exact: true,
+      element: (
+        <>
+          <section className="main">
+            <Header />
+            <div className="contentMain flex">
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
+                <Sidebar />
+              </div>
+              <div 
+              // onClick={() => setIsSidebarOpen(false)} 
+               className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <Profile />
+              </div>
+            </div>
+          </section>
+        </>
+      ),
+    },
+    {
+      path: "/product/addRams",
+      exact: true,
+      element: (
+        <>
+          <section className="main">
+            <Header />
+            <div className="contentMain flex">
+             <div 
+             className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
+                <Sidebar />
+              </div>
+              <div 
+              // onClick={() => setIsSidebarOpen(false)} 
+              className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <AddRAMS />
+              </div>
+            </div>
+          </section>
+        </>
+      ),
+    },
+    {
+      path: "/product/addWeights",
+      exact: true,
+      element: (
+        <>
+          <section className="main">
+            <Header />
+            <div className="contentMain flex">
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
+                <Sidebar />
+              </div>
+              <div 
+              // onClick={() => setIsSidebarOpen(false)}
+               className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <AddWEIGHT />
+              </div>
+            </div>
+          </section>
+        </>
+      ),
+    },
+    {
+      path: "/product/addSizes",
+      exact: true,
+      element: (
+        <>
+          <section className="main">
+            <Header />
+            <div className="contentMain flex">
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
+                <Sidebar />
+              </div>
+              <div 
+              // onClick={() => setIsSidebarOpen(false)} 
+              className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <AddSIZES />
+              </div>
+            </div>
+          </section>
+        </>
+      ),
+    },
+    {
+      path: "/blog/list",
+      exact: true,
+      element: (
+        <>
+          <section className="main">
+            <Header />
+            <div className="contentMain flex">
+             <div className={`sidebarWrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
+                <Sidebar />
+              </div>
+              <div 
+              // onClick={() => setIsSidebarOpen(false)}
+               className={`contentRight py-3 px-5 transition-all ${isSidebarOpen === false ? 'w-[100%]' : `!w-[${100 - sidebarWidth}%]`}`}>
+                <BlogList />
+              </div>
+            </div>
+          </section>
+        </>
+      ),
+    },
   ]);
+  const isRedirecting = useRef(false);
+
+
+  // Make toast available globally for axios interceptor
+  useEffect(() => {
+    window.showToast = openAlertBox;
+    return () => {
+      delete window.showToast;
+    };
+  }, [openAlertBox]);
+
+  // Session check function
+  const checkUserSession = useCallback(async () => {
+    const token = localStorage.getItem('accesstoken');
+
+    if (!token) {
+      setIsLogin(false);
+      setuserData(null);
+      return;
+    }
+
+    try {
+      const res = await fetchDataFromApi(`/api/user/user-details`);
+
+      if (res?.error === true) {
+        // Session expired or error
+        if (isRedirecting.current) return; // Prevent multiple redirects
+
+        isRedirecting.current = true;
+        localStorage.removeItem("accesstoken");
+        localStorage.removeItem("refreshToken");
+        setuserData(null);
+        setIsLogin(false);
+        openAlertBox("error", res?.message || "Your session has expired. Please login again.");
+
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1500);
+      } else if (res?.data) {
+        // Valid response with user data
+        setuserData(res.data);
+        setIsLogin(true);
+      }
+    } catch (err) {
+      console.error("Error checking session:", err);
+      // Don't redirect on network errors during periodic checks
+      // The interceptor will handle actual auth failures
+    }
+  }, [openAlertBox]);
+
+  // Initial session check on mount
+  useEffect(() => {
+    const token = localStorage.getItem('accesstoken');
+    if (token) {
+      checkUserSession();
+    }
+  }, []); // Run only once on mount
+
+  // Periodic session check
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const token = localStorage.getItem('accesstoken');
+      if (token && !isRedirecting.current) {
+        checkUserSession();
+      }
+
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(intervalId);
+  }, [checkUserSession]);
+
+  // const getCat= ()=>{
+  //   fetchDataFromApi("/api/category").then((res) => {
+  //     setCatData(res?.data);
+  //   });
+  // }
 
   const values = {
+    sidebarWidth, setSidebarWidth,
     isSidebarOpen,
     setIsSidebarOpen,
     isLogin, setIsLogin,
-    isOpenFullScreenPanel, setIsOpenFullScreenPanel
+    isOpenFullScreenPanel, setIsOpenFullScreenPanel,
+    openAlertBox,
+    userData, setuserData,
+    address, setAddress,
+    catData, setCatData,
+    getCat,
+    isLoadingCategories,
+    windowWidth, setWindowWidth
   }
 
   return (
@@ -242,46 +518,7 @@ function App() {
       <MyContext.Provider value={values}>
         <RouterProvider router={router} />
 
-        <Dialog
-          fullScreen
-          open={isOpenFullScreenPanel.open}
-          onClose={() => setIsOpenFullScreenPanel({
-            open: false
-          })}
-          slots={{
-            transition: Transition,
-          }}
-        >
-          <AppBar sx={{ position: 'relative' }}>
-            <Toolbar>
-              <IconButton
-                edge="start"
-                color="inherit"
-                onClick={() => setIsOpenFullScreenPanel({
-                  open: false
-                })}
-                aria-label="close"
-              >
-                <IoMdClose className="text-gray-800" />
-              </IconButton>
-              <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                <span className="text-gray-800">{isOpenFullScreenPanel?.model}</span>
-              </Typography>
-            </Toolbar>
-          </AppBar>
-          {
-            isOpenFullScreenPanel?.model === "Add Product" && <AddProduct />
-          }
-          {
-            isOpenFullScreenPanel?.model === "Add Home Slide" && <AddHomeSlide />
-          }
-          {
-            isOpenFullScreenPanel?.model === "Add New Category" && <AddCategory />
-          }
-          {
-            isOpenFullScreenPanel?.model === "Add New Sub Category" && <AddSubCategory />
-          }
-        </Dialog>
+        <Toaster />
 
       </MyContext.Provider>
     </>

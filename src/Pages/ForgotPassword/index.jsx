@@ -8,14 +8,15 @@ const ForgotPassword = () => {
 
     return (
         <section className="bg-white w-full h-[100vh]">
-            <header className="w-full fixed top-0 left-0 px-4 py-3 flex items-center justify-between z-50">
+            <header className="w-full static lg:fixed top-0 left-0 px-4 py-3 flex items-center justify-center 
+            sm:justify-between z-50">
                 <Link to="/">
                     <img
                         src="https://isomorphic-furyroad.vercel.app/_next/static/media/logo.a795e14a.svg"
                         className="w-[200px]"
                     />
                 </Link>
-                <div className="flex items-center gap-0">
+                <div className="hidden sm:!flex items-center gap-0">
                     <NavLink to="/login" exact={true} activeClassName="isActive">
                         <Button className="!rounded-full flex gap-2 !text-[rgba(0,0,0,0.8)] !px-5">
                             <CgLogIn className='text-[18px]' />Login
@@ -30,12 +31,12 @@ const ForgotPassword = () => {
 
             </header>
             <img src="/pattern.png" className="w-full fixed top-0 left-0 opacity-5" />
-            <div className="loginBox card w-[600px] h-[auto] pb-20 mx-auto pt-20 relative z-50">
+            <div className="loginBox card w-full md:w-[600px] h-[auto] pb-20 mx-auto !pt-5 lg:!pt-20 relative z-50">
                 <div className="text-center">
                     <img src="/icon.png" className="m-auto h-[90px] w-[90px]" />
                 </div>
 
-                <h1 className="text-center text-[35px] font-[800] mt-4">
+                <h1 className="text-center text-[20px] sm:text-[35px] font-[800] mt-2 sm:mt-4">
                     Having trouble to sign in?<br />
                     <span className='text-[#3872fa]'>Reset your password.</span>
                 </h1>

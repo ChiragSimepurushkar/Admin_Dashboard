@@ -24,12 +24,6 @@ function createData(name, code, population, size) {
     const density = population / size;
     return { name, code, population, size, density };
 }
-
-const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
-const columns = [
-    { id: 'image', label: 'IMAGE', minWidth: 250 },
-    { id: 'action', label: 'ACTION', minWidth: 100 },
-];
 const rows = [
     createData('India', 'IN', 1324171354, 3287263),
     createData('China', 'CN', 1403500365, 9596961),
@@ -47,27 +41,26 @@ const rows = [
     createData('Nigeria', 'NG', 200962417, 923768),
     createData('Brazil', 'BR', 210147125, 8515767),
 ];
+const columns = [
+    { id: 'image', label: 'IMAGE', minWidth: 250 },
+    { id: 'title', label: 'TITLE', minWidth: 200 },
+    { id: 'description', label: 'DESCRIPTION', minWidth: 300 },
+    { id: 'action', label: 'ACTION', minWidth: 100 },
+];
 
-export const HomeSliderBanners = () => {
+export const BlogList = () => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [slidesData, setSlidesData] = useState([]);
+    const [blogData, setBlogData] = useState([]);
     const context = useContext(MyContext);
     const [sortedIds, setSortedIds] = useState([]);
 
     const getData = () => {
-        fetchDataFromApi("/api/homeSlides").then((res) => {
-            let slidesArr = [];
-            if (res?.error === false) {
-                for (let i = 0; i < res?.data?.length; i++) {
-                    slidesArr[i] = res?.data[i];
-                    slidesArr[i].checked = false;
-                    // console.log(res?.products[i])
-                }
-                setTimeout(() => {
-                    setSlidesData(slidesArr)
-                }, 500)
-            }
+        fetchDataFromApi("/api/blog").then((res) => {
+            console.log(res?.blogs)
+            setTimeout(() => {
+                setBlogData(res?.blogs)
+            }, 500)
         });
 
     }
@@ -83,67 +76,9 @@ export const HomeSliderBanners = () => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
-    const handleSelectAll = (e) => {
-        const isChecked = e.target.checked;
-
-        // Update all items' checked status
-        const updatedItems = slidesData.map((item) => ({
-            ...item,
-            checked: isChecked,
-        }));
-
-        setSlidesData(updatedItems);
-        // console.log(updatedItems)
-        // Update the sorted IDs state
-        if (isChecked) {
-            const ids = updatedItems.map((item) => item._id).sort((a, b) => a - b);
-            // console.log(ids)
-            setSortedIds(ids);
-        } else {
-            setSortedIds([]);
-        }
-    }
-    const handleCheckboxChange = (e, id, index) => {
-
-        const updatedItems = slidesData.map((item) =>
-            item._id === id ? { ...item, checked: e.target.checked } : item
-        );
-        setSlidesData(updatedItems);
-
-        // Update the sorted IDs state
-        const selectedIds = updatedItems
-            .filter((item) => item.checked)
-            .map((item) => item._id)
-            .sort((a, b) => a - b);
-        setSortedIds(selectedIds);
-    };
-
-    const deleteMultipleSlides = async () => {
-        if (sortedIds.length === 0) {
-            context.openAlertBox('error', 'Please select items to delete.');
-            return;
-        }
-
-        try {
-            const res = await deleteMultipleData('/api/homeSlides/deleteMultipleSlides', {
-                data: { ids: sortedIds }
-            });
-
-            if (res?.success === true) {
-                getData();
-                setSortedIds([]);
-                context.openAlertBox("success", res?.message || "Slides deleted successfully");
-            } else {
-                context.openAlertBox("error", res?.message || "Failed to delete slides");
-            }
-        } catch (error) {
-            console.error("Delete error:", error);
-            context.openAlertBox('error', 'Error deleting items.');
-        }
-    }
 
     const deleteSlides = (id) => {
-        deleteData(`/api/homeSlides/${id}`).then((res) => {
+        deleteData(`/api/blog/${id}`).then((res) => {
             if (res?.error === false) {
                 context.openAlertBox("success", res?.message);
                 getData()
@@ -154,26 +89,17 @@ export const HomeSliderBanners = () => {
     };
     return (
         <>
-            {/* <div className="flex items-center justify-between px-2 py-0 mt-3">
-                <h2 className='text-[19px] font-[600]'>Home Slider Banners
+            <div className="flex items-center justify-between px-2 py-0 mt-3">
+                <h2 className='text-[19px] font-[600]'>Blog Lists
+                    {/* <span className='font-[400] text-[14px]'>(Material UI Table)</span> */}
                 </h2>
-                <div className="col justify-end w-[25%] ml-auto flex items-center gap-3"> */}
-            <div className="grid grid-cols-1 md:grid-cols-2 px-2 py-0 mt-1 md:mt-2">
-                <h2 className="text-[18px] font-[600]">
-                    Home Slider Banners
-                    <span className="font-[400] text-[14px]"></span>
-                </h2>
-                <div className="col flex items-center justify-start md:justify-end gap-3">
-                    {
-                        sortedIds?.length !== 0 && <Button variant="contained" className="btn-sm" size="small"
-                            color="error"
-                            onClick={deleteMultipleSlides}>Delete</Button>
-                    }
+                <div className="col justify-end w-[25%] ml-auto flex items-center gap-3">
+
                     <Button className="btn-blue btn-sm"
                         onClick={() => context.setIsOpenFullScreenPanel({
                             open: true,
-                            model: 'Add Home Slide'
-                        })}>Add Home Slides</Button>
+                            model: 'Add Blog'
+                        })}>Add Blog</Button>
                 </div>
             </div>
             <div className="card pt-5 my-3 shadow-md sm:rounded-lg bg-white">
@@ -182,10 +108,7 @@ export const HomeSliderBanners = () => {
                         <TableHead >
                             <TableRow>
                                 <TableCell width={60}>
-                                    <Checkbox {...label} size="small"
-                                        onChange={handleSelectAll}
-                                        checked={(slidesData?.length > 0 ? slidesData
-                                            .every((item) => item.checked) : false)} />
+
                                 </TableCell>
                                 {columns.map((column) => (
                                     <TableCell
@@ -200,14 +123,11 @@ export const HomeSliderBanners = () => {
                         </TableHead>
                         <TableBody>
                             {
-                                slidesData?.length !== 0 && slidesData?.map((item, index) => {
+                                blogData?.length !== 0 && blogData?.map((item, index) => {
                                     return (
                                         <TableRow key={index}>
                                             <TableCell >
-                                                <Checkbox {...label} size="small"
-                                                    checked={item?.checked === true ? true : false}
-                                                    onChange={(e) => handleCheckboxChange(e, item?._id, index)}
-                                                />
+
                                             </TableCell>
                                             <TableCell width={300}>
                                                 <div className="flex items-center gap-4 w-[300px]">
@@ -220,14 +140,22 @@ export const HomeSliderBanners = () => {
 
                                                 </div>
                                             </TableCell>
+                                            <TableCell width={200}>
+                                                <span className='text-[15px] font-[500] w-[200px] inline-block sm:w-[150px] lg:w-[300px]'>{item?.title}</span>
+                                            </TableCell>
+                                            <TableCell width={300}>
+                                                <div className='w-[200px] sm:w-[150px] lg:w-[300px]' dangerouslySetInnerHTML={{ __html: item?.description?.substr(0, 150) + '...' }} />
+                                            </TableCell>
                                             <TableCell width={100}>
                                                 <div className="flex items-center gap-1">
                                                     <TooltipMUI title="Edit Product" placement="top">
                                                         <Button onClick={() => context.setIsOpenFullScreenPanel({
                                                             open: true,
-                                                            model: 'Edit Home Slide'
+                                                            model: 'Edit Blog',
+                                                            id: item?._id
                                                         })} className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                            <MdModeEdit className="text-[rgba(0,0,0,1)] text-[20px]" />
+                                                            <MdModeEdit className="text-[rgba(0,0,0,1)] text-[20px]"
+                                                            />
                                                         </Button>
                                                     </TooltipMUI>
                                                     <TooltipMUI title="Remove Product" placement="top">
@@ -247,18 +175,22 @@ export const HomeSliderBanners = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[10, 25, 100]}
-                    component="div"
-                    count={slidesData.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                {
+                    blogData?.totalPages > 1 && (
+                        <TablePagination
+                            rowsPerPageOptions={[1, 10, 25, 100]}
+                            component="div"
+                            count={blogData?.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                        />
+                    )
+                }
             </div>
         </>
     );
 };
 
-export default HomeSliderBanners;
+export default BlogList;

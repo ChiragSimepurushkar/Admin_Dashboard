@@ -1,159 +1,105 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import { MdModeEdit } from "react-icons/md";
-import { Link } from 'react-router-dom';
-import { FaEye } from "react-icons/fa";
-import { FaTrashAlt } from "react-icons/fa";
-import Progress from '../../Components/Progess';
-import TooltipMUI from '@mui/material/Tooltip';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import SearchBox from '../../Components/SearchBox';
 import { MyContext } from '../../App';
-import Chip from '@mui/material/Chip';
-function createData(name, code, population, size) {
-    const density = population / size;
-    return { name, code, population, size, density };
-}
+import { FaAngleDown } from 'react-icons/fa';
+import EditSubCategoryBox from './EditSubCategoryBox';
 
-const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
-const columns = [
-    { id: 'image', label: 'CATEGORY IMAGE', minWidth: 250 },
-    { id: 'CatName', label: 'CATEGORY NAME', minWidth: 250 },
-    { id: 'subCatName', label: 'SUB CATEGORY NAME', minWidth: 400 },
-    { id: 'action', label: 'ACTION', minWidth: 100 },
-];
-const rows = [
-    createData('India', 'IN', 1324171354, 3287263),
-    createData('China', 'CN', 1403500365, 9596961),
-    createData('Italy', 'IT', 60483973, 301340),
-    createData('United States', 'US', 327167434, 9833520),
-    createData('Canada', 'CA', 37602103, 9984670),
-    createData('Australia', 'AU', 25475400, 7692024),
-    createData('Germany', 'DE', 83019200, 357578),
-    createData('Ireland', 'IE', 4857000, 70273),
-    createData('Mexico', 'MX', 126577691, 1972550),
-    createData('Japan', 'JP', 126317000, 377973),
-    createData('France', 'FR', 67022000, 640679),
-    createData('United Kingdom', 'GB', 67545757, 242495),
-    createData('Russia', 'RU', 146793744, 17098246),
-    createData('Nigeria', 'NG', 200962417, 923768),
-    createData('Brazil', 'BR', 210147125, 8515767),
-];
 
 export const SubCategory = () => {
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [categoryFilterVal, setCategoryFilterVal] = React.useState('');
+    const [isOpen, setIsOpen] = useState(0);
     const context = useContext(MyContext);
-    const handleChangeCatFilter = (event) => {
-        setCategoryFilterVal(event.target.value);
-    };
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
 
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
+    const expend = (index) => {
+        if (isOpen === index) {
+            setIsOpen(!isOpen);
+        } else {
+            setIsOpen(index);
+        }
+    }
+
     return (
         <>
-            <div className="flex items-center justify-between px-2 py-0 mt-3">
-                <h2 className='text-[19px] font-[600]'>Sub Category List
-                    <span className='font-[400] text-[14px]'>(Material UI Table)</span>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-2 py-3 mt-0 gap-2">
+                <h2 className='text-[18px] md:text-[19px] font-[600] whitespace-nowrap'>
+                    Sub Category List
                 </h2>
-                <div className="col justify-end w-[30%] ml-auto flex items-center gap-3">
-                    <Button className="btn !bg-green-600 !text-white btn-sm">Export</Button>
-                    <Button className="btn-blue btn-sm"
+                <div className="flex items-center gap-3">
+                    <Button
+                        className="btn-blue btn-sm"
                         onClick={() => context.setIsOpenFullScreenPanel({
                             open: true,
                             model: 'Add New Sub Category'
-                        })}>Add New Sub Category</Button>
+                        })}
+                    >
+                        Add New Sub Category
+                    </Button>
                 </div>
             </div>
-            <div className="card pt-5 my-3 shadow-md sm:rounded-lg bg-white">
-                <TableContainer sx={{ maxHeight: 440 }}>
-                    <Table stickyHeader aria-label="sticky table">
-                        <TableHead >
-                            <TableRow>
-                                <TableCell width={60}>
-                                    <Checkbox {...label} size="small" />
-                                </TableCell>
-                                {columns.map((column) => (
-                                    <TableCell
-                                        key={column.id}
-                                        width={column.minWidth}
-                                        align={column.align}
-                                    >
-                                        {column.label}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            <TableRow>
-                                <TableCell >
-                                    <Checkbox {...label} size="small" />
-                                </TableCell>
-                                <TableCell width={100}>
-                                    <div className="flex items-center gap-4 w-[80px]">
-                                        <div className=" group img w-fullrounded-md overflow-hidden">
-                                            <Link to="/product/35545">
-                                                <img
-                                                    src="https://serviceapi.spicezgold.com/download/1741661045887_bag.png"
-                                                    className="w-full group-hover:scale-105 transition-all"
-                                                />
-                                            </Link>
-                                        </div>
 
+            <div className="card my-4 pt-5 pb-5 px-5 shadow-md sm:rounded-lg bg-white">
+                {context?.catData?.length !== 0 && (
+                    <ul className="w-full">
+                        {context?.catData?.map((firstLavelCat, index) => {
+                            return (
+                                <li className="w-full mb-1" key={index}>
+                                    <div className='flex items-center w-full p-2 bg-[#f1f1f1] rounded-sm px-4'>
+                                        <span className='font-[500] flex items-center gap-4 text-[14px]'>
+                                            {firstLavelCat?.name}
+                                        </span>
+                                        <Button
+                                            onClick={() => expend(index)}
+                                            className="!min-w-[35px] !w-[35px] !h-[35px] !rounded-full !text-black !ml-auto">
+                                            <FaAngleDown />
+                                        </Button>
                                     </div>
-                                </TableCell>
-                                <TableCell>
-                                    <Chip label="Fashion" />
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <Chip label="Men" color="primary" />
-                                        <Chip label="Women" color="primary" />
-                                        <Chip label="Kids" color="primary" />
-                                    </div>
-                                </TableCell>
-                                <TableCell width={100}>
-                                    <div className="flex items-center gap-1">
-                                        <TooltipMUI title="Edit Product" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <MdModeEdit className="text-[rgba(0,0,0,1)] text-[20px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                        <TooltipMUI title="Remove Product" placement="top">
-                                            <Button className="!rounded-full hover:!bg-[#ccc] !w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !min-w-[35px]">
-                                                <FaTrashAlt className="text-[rgba(0,0,0,1)] text-[17px]" />
-                                            </Button>
-                                        </TooltipMUI>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[10, 25, 100]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                                    {
+                                        isOpen === index && firstLavelCat?.children?.length !== 0 && (
+                                            <ul className='w-full'>
+                                                {firstLavelCat?.children?.map(((subCat, index_) => {
+                                                    return (
+                                                        <li className='w-full py-1' key={index_}>
+                                                            <EditSubCategoryBox
+                                                                name={subCat?.name}
+                                                                id={subCat?._id}
+                                                                index={index_}
+                                                                level={0}
+                                                                selectedCat={subCat?.parentId}
+                                                                catData={context?.catData}
+                                                                selectedCatName={subCat?.parentCatName}
+                                                            />
+                                                            {subCat?.children?.length !== 0 && (
+                                                                <ul className="pl-4">
+                                                                    {subCat?.children?.map((thirdLevel, index_) => {
+                                                                        return (
+                                                                            <li
+                                                                                key={index_}
+                                                                                className="w-full hover:bg-[#f1f1f1]"
+                                                                            >
+                                                                                <EditSubCategoryBox
+                                                                                    name={thirdLevel?.name}
+                                                                                    catData={firstLavelCat?.children}
+                                                                                    index={index_}
+                                                                                    level={1}
+                                                                                    selectedCat={thirdLevel?.parentId}
+                                                                                    selectedCatName={thirdLevel?.parentCatName}
+                                                                                    id={thirdLevel?._id}
+                                                                                />
+                                                                            </li>
+                                                                        );
+                                                                    })}
+                                                                </ul>
+                                                            )}
+                                                        </li>
+                                                    )
+                                                }))}
+                                            </ul>
+                                        )
+                                    }
+                                </li>
+                            )
+                        })}
+                    </ul>
+                )}
             </div>
         </>
     );

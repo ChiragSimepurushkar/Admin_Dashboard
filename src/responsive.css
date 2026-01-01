@@ -1,0 +1,228 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.main {
+    min-height: 100vh;
+    position: relative;
+}
+
+.contentMain {
+    display: flex;
+    min-height: calc(100vh - 70px);
+    /* 70px is header height */
+    /* margin-top: 70px; Space for fixed header */
+}
+
+/* Sidebar base styles */
+.sidebarWrapper {
+    transition: all 0.3s ease-in-out;
+    flex-shrink: 0;
+}
+
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Content area base styles */
+.contentRight {
+    flex: 1;
+    transition: all 0.3s ease-in-out;
+    padding: 1.5rem;
+    margin: 1rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+    overflow-x: hidden;
+}
+
+@media only screen and (min-width:320px) and (max-width:639px) {
+    .leading-10 {
+        line-height: 28px;
+    }
+}
+
+/* Mobile styles (320px - 992px) */
+@media only screen and (min-width:320px) and (max-width:992px) {
+
+    html,
+    body {
+        overflow-x: hidden;
+    }
+
+    @media only screen and (min-width:320px) and (max-width:992px) {
+        .MuiTableCell-head {
+            white-space: nowrap;
+        }
+    }
+
+    /* Sidebar for mobile - slides in from left */
+    .sidebarWrapper {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 999;
+        width: 0;
+    }
+
+    .sidebarWrapper.open {
+        width: 280px;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+    }
+
+    .sidebarWrapper.open .sidebar {
+        transform: translateX(0);
+    }
+
+    /* Content takes full width on mobile */
+    .contentRight {
+        margin-left: 0 !important;
+        width: 100%;
+        flex: 1;
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+
+    /* Header full width on mobile */
+    header {
+        left: 0 !important;
+        width: 100% !important;
+        padding-left: 1rem !important;
+    }
+
+    /* Overlay for mobile sidebar */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+        opacity: 1;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .sidebar-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Buttons */
+    .btn-sm {
+        padding: 5px 10px !important;
+        font-size: 11px !important;
+    }
+
+    .btn-lg {
+        padding: 8px 10px !important;
+        font-size: 14px !important;
+    }
+
+    .btn {
+        padding: 5px 10px !important;
+        font-size: 12px !important;
+    }
+
+    .btn svg {
+        font-size: 15px !important;
+    }
+
+    /* Pagination Mobile Scroll */
+    .MuiPagination-root {
+        width: 80% !important;
+        margin: auto !important;
+    }
+
+    .MuiPagination-ul {
+        white-space: nowrap !important;
+        overflow-x: scroll !important;
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .MuiPagination-ul li {
+        display: inline-block !important;
+        vertical-align: top !important;
+    }
+}
+
+/* Tablet and Desktop styles (993px and above) */
+@media only screen and (min-width:993px) {
+    .sidebar-overlay {
+        display: none !important;
+    }
+
+    /* Sidebar open state */
+    .sidebarWrapper.open {
+        width: 280px;
+        /* Fixed width in pixels for better control */
+    }
+
+    .sidebarWrapper.open .sidebar {
+        width: 280px;
+        transform: translateX(0);
+    }
+
+    /* Sidebar closed state */
+    .sidebarWrapper.closed {
+        width: 0;
+    }
+
+    .sidebarWrapper.closed .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+    }
+
+    /* Content area adjusts based on sidebar state */
+    .contentRight {
+        flex: 1;
+        padding: 1.5rem;
+        margin: 1rem;
+        margin-left: 0.5rem;
+    }
+
+    .contentMain.sidebar-open .contentRight {
+        margin-left: 1rem;
+    }
+
+    .contentMain.sidebar-closed .contentRight {
+        margin-left: 1rem;
+    }
+
+    /* Header adjusts based on sidebar state */
+    header.sidebar-open {
+        left: 280px !important;
+        width: calc(100% - 280px) !important;
+        padding-left: 1.5rem !important;
+    }
+
+    header.sidebar-closed {
+        left: 0 !important;
+        width: 100% !important;
+        padding-left: 1.25rem !important;
+    }
+}
+
+/* Large Desktop styles (1200px and above) */
+@media only screen and (min-width:1200px) {
+    .contentRight {
+        padding: 2rem;
+        /* margin: 1.5rem; */
+    }
+
+    .contentMain.sidebar-open .contentRight {
+        margin-left: 1.5rem;
+    }
+}
